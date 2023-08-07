@@ -5,6 +5,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require("mongoose");
+require('dotenv').config()
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -12,12 +13,10 @@ const usersRouter = require('./routes/users');
 const app = express();
 
 // MongoDB stuff
-mongoose.set("strictQuery", false);
-const mongoDB = process.env.MONGODB_URI;
-main().catch((err) => console.log(err));
-async function main() {
-  await mongoose.connect(mongoDB);
-}
+const mongoDb = process.env.MONGODB_URI;
+mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "mongo connection error"));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
