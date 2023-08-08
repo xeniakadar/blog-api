@@ -6,6 +6,6 @@ const bcrypt = require("bcryptjs");
 const User = require("../controllers/user");
 
 // create user
-// exports.signup_get = (req, res, next) => {
-//   res.render()
-// }
+exports.signup_get = (req, res, next) => {
+  res.render()
+}

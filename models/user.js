@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
-
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  username: { type: String, required: true, maxLength: 25 },
-  email: { type: String, required: true },
-  password: { type: String, required: true },
+  username: { type: String },
+  email: { type: String },
+  password: { type: String },
 });
 
 userSchema.virtual("url").get(function () {

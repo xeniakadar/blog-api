@@ -6,14 +6,21 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require("mongoose");
 const cors = require("cors");
-require('dotenv').config()
+require('dotenv').config();
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const session = require("express-session");
+const bcrypt = require("bcryptjs");
+const bodyParser = require("body-parser");
 
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
 // const blogpostsRouter = require('./routes/blogposts');
+const User = require("./models/user");
 
 const app = express();
 
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
 app.use(cors());
 
 app.use(express.json());
@@ -24,6 +31,50 @@ const mongoDb = process.env.MONGODB_URI;
 mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
+db.once("open", () => { console.log("connected to MongoDB database")});
+
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      const user = await User.findOne({ username: username });
+      if (!user) {
+        return done(null, false, { message: "Incorrect username" });
+      }
+      bcrypt.compare(password, user.password, (err, res) =>  {
+        if (!res) {
+          return done(null, false, { message: "incorrect password" })
+        }
+      })
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  })
+);
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async function(id, done) {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch(err) {
+    done(err);
+  };
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,7 +87,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 // app.use('/api', blogpostsRouter);
 
 // catch 404 and forward to error handler
@@ -54,6 +104,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 
 module.exports = app;
