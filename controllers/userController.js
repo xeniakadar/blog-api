@@ -97,7 +97,7 @@ exports.login_post = async function (req, res, next) {
           username: user.username,
           email: user.email,
         };
-        const token = jwt.sign({ user: body}, process.env.SECRET, {expiresIn: '1d'});
+        const token = jwt.sign({ user: body}, process.env.SECRET, {expiresIn: '1h'});
 
         return res.status(200).json({body, token});
 
@@ -108,4 +108,8 @@ exports.login_post = async function (req, res, next) {
       err
     })
   }
+};
+
+exports.logout_get = (req, res, next) => {
+  //logout handled on client side by clearing the local storage
 };

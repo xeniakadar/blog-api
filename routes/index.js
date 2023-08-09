@@ -26,12 +26,7 @@ router.post('/api/register', user_controller.signup_post);
 router.post('/api/login', user_controller.login_post);
 
 
-
-
-router.post('/api/logout', (req, res) => {
-  req.logout();
-  res.json({ message: 'logged out succesffuly'});
-});
+router.get('/api/logout', user_controller.logout_get);
 
 
 
