@@ -3,9 +3,14 @@ const express = require('express');
 const asyncHandler = require("express-async-handler");
 const bodyParser = require("body-parser");
 const Blogpost = require("../models/blogpost");
+const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+
 const { body, validationResult } = require('express-validator');
 
 exports.blogpost_create_post = [
+  verifyToken,
+
   body("title", "Title must be specified")
     .trim()
     .isLength({ max: 30 })
@@ -15,22 +20,48 @@ exports.blogpost_create_post = [
     .isLength({ min: 5 })
     .escape(),
 
-  asyncHandler(async (req, res, next) => {
+  async (req, res) => {
     const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(403).json({
+        title: req.body.title,
+        text: req.body.text,
+        errors: errors.array(),
+      });
+    }
     const blogpost = new Blogpost({
       title: req.body.title,
       text: req.body.text,
-      userid: req.user._id,
+      published: req.body.published,
+      timestamp: new Date(),
       username: req.user.username,
-      time_stamp: new Date(),
     });
-
-    if (!errors.isEmpty()) {
-      console.log(errors);
-      // add error stuff
-    } else {
+    try {
       await blogpost.save();
-      //res.redirect("/");
+      return res.status(201).json({
+        message: "post saved/published successfully",
+        blogpost: {
+          id: blogpost._id,
+          title: blogpost.title,
+          published: blogpost.published,
+          timestamp: blogpost.timestamp,
+          username: blogpost.username,
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Error creating blogpost"})
     }
-  })
-]
+  }
+];
+
+function verifyToken(req, res, next) {
+  const bearerHeader = req.headers['authorization'];
+  if (typeof bearerHeader !== 'undefined') {
+    const bearer = bearerHeader.split(" ");
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
+    next();
+  } else {
+    res.sendStatus(403);
+  }
+}

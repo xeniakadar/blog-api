@@ -6,28 +6,24 @@ const passport = require("passport");
 const User = require("../models/user");
 // const blogpost_controller = require("../controllers/blogpostController");
 const user_controller = require("../controllers/userController");
+const blogpost_controller = require("../controllers/blogpostController");
 
 /* GET home page. */
-// router.get('/', function(req, res, next) {
-//   res.render('index', { title: 'Express' });
-// });
 
 
-// user info
-router.get('/', (req, res) => {
-  return res.send("hello server");
-})
+// user stuff
+router.post('/register', user_controller.signup_post);
+router.post('/login', user_controller.login_post);
+router.get('/logout', user_controller.logout_get);
 
-router.post('/api/register', user_controller.signup_post);
+// blogpost stuff post, update, delete, get
+//get all posts
+// get one post
+// create post
+//delete post
+//update post
 
-// router.post('/api/login', passport.authenticate('local'), (req, res) => {
-//   res.json({ message: 'logged in successfully', user: req.user});
-// });
-router.post('/api/login', user_controller.login_post);
-
-
-router.get('/api/logout', user_controller.logout_get);
-
+router.post("/blogposts", blogpost_controller.blogpost_create_post);
 
 
 module.exports = router;

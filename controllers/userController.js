@@ -1,28 +1,10 @@
 /* eslint-disable */
 const { body, validationResult } = require("express-validator");
 
-const asyncHandler = require("express-async-handler");
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
-const express = require('express');
-const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-
-// create user
-// exports.signup_post = async (req, res) => {
-//   const user = new User({
-//     username: req.body.username,
-//     email: req.body.email,
-//     password: req.body.password,
-//   });
-//   try {
-//     const newUser = await user.save();
-//     res.status(201).json({ message: `user registered successfully: ${newUser}`});
-//   } catch (error) {
-//     res.status(500).json({ error: "error registering user"});
-//   }
-// };
 
 exports.signup_post = [
   body("username", "Username must be specified")
@@ -47,7 +29,7 @@ exports.signup_post = [
     .trim()
     .escape(),
 
-  async(req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(req.body.password, salt);
@@ -72,20 +54,46 @@ exports.signup_post = [
           email: user.email,
         }
       });
-    } catch(error) {
+    } catch (error) {
       return res.status(500).json({ error: "error registering user"});
     }
   }
 ];
 
+// exports.login_post = async function (req, res, next) {
+//   try {
+//     passport.authenticate('local', { session: false}, (err, user, info) => {
+//       if (err || !user) {
+//         const error = new Error('User does not exist');
+//         return res.status(403).json({
+//           info
+//         })
+//       }
+//       req.login(user, {session: false}, (err) => {
+//         if (err) {
+//           next(err);
+//         }
+//         // token
+//         const body = {
+//           _id: user._id,
+//           username: user.username,
+//           email: user.email,
+//         };
+//         const token = jwt.sign({ user: body}, process.env.SECRET, {expiresIn: '1h'});
+//         return res.status(200).json({body, token});
+//       });
+//     }) (req, res, next);
+//   } catch (err) {
+//     res.status(403).json({ err });
+//   }
+// };
 exports.login_post = async function (req, res, next) {
   try {
-    passport.authenticate('local', { session: false}, (err, user, info) => {
+    passport.authenticate('local', { session: false }, (err, user, info) => {
       if (err || !user) {
-        const error = new Error('User does not exist');
         return res.status(403).json({
-          info
-        })
+          error: 'Authentication failed'
+        });
       }
       req.login(user, {session: false}, (err) => {
         if (err) {
@@ -98,15 +106,13 @@ exports.login_post = async function (req, res, next) {
           email: user.email,
         };
         const token = jwt.sign({ user: body}, process.env.SECRET, {expiresIn: '1h'});
-
         return res.status(200).json({body, token});
-
       });
     }) (req, res, next);
   } catch (err) {
-    res.status(403).json({
-      err
-    })
+    return res.status(500).json({
+      error: 'Server error'
+    });
   }
 };
 
