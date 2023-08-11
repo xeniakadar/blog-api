@@ -65,6 +65,23 @@ exports.blogpost_list = async (req, res, next) => {
   }
 };
 
+exports.blogpost_detail = async (req, res, next) => {
+  try {
+    const blogpost = await Blogpost.findById(req.params.id)
+    .populate("username")
+    .exec();
+    if (blogpost === null) {
+      const err = new Error("Blogpost not found");
+      err.status = 404;
+      return next(err);
+    }
+
+    return res.status(200).json(blogpost);
+  } catch(error) {
+    return res.status(500).json({ error: "error getting blogpost"});
+  }
+}
+
 
 function verifyToken(req, res, next) {
   const bearerHeader = req.headers['authorization'];
