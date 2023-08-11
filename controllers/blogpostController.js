@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken");
 const { body, validationResult } = require('express-validator');
 
 exports.blogpost_create_post = [
-  verifyToken,
+  //verifyToken,
 
   body("title", "Title must be specified")
     .trim()
@@ -34,7 +34,7 @@ exports.blogpost_create_post = [
       text: req.body.text,
       published: req.body.published,
       timestamp: new Date(),
-      username: req.user.username,
+      username: req.body.username,
     });
     try {
       await blogpost.save();
@@ -110,6 +110,19 @@ exports.blogpost_update = [
     }
   }
 ]
+
+// this needs to be changed
+exports.blogpost_delete =async (req, res, next) => {
+  try {
+    const blogpost = await Blogpost.findByIdAndRemove(req.params.id).exec();
+    if (!blogpost) {
+      return res.status(404).json({ message: `blogpost ${req.params.id} not found` });
+    }
+    return res.status(200).json({ message: `post ${req.params.id} deleted successfully` });
+  } catch (error) {
+    return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
+  }
+}
 
 
 function verifyToken(req, res, next) {
