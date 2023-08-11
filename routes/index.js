@@ -19,11 +19,11 @@ router.get('/logout', user_controller.logout_get);
 // blogpost stuff post, update, delete, get
 //get all posts
 // get one post
-// create post
 //delete post
 //update post
 
 router.post("/blogposts", blogpost_controller.blogpost_create_post);
+router.get("/blogposts", blogpost_controller.blogpost_list);
 
 
 module.exports = router;

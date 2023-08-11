@@ -54,6 +54,18 @@ exports.blogpost_create_post = [
   }
 ];
 
+exports.blogpost_list = async (req, res, next) => {
+  try {
+    let blogposts = await Blogpost.find({}, {title: 1, text: 1, timestamp: -1})
+      .populate("title")
+      .exec();
+    return res.status(200).json(blogposts)
+  } catch(error) {
+    return res.status(500).json({ error: "error getting blogposts"})
+  }
+};
+
+
 function verifyToken(req, res, next) {
   const bearerHeader = req.headers['authorization'];
   if (typeof bearerHeader !== 'undefined') {
@@ -64,4 +76,4 @@ function verifyToken(req, res, next) {
   } else {
     res.sendStatus(403);
   }
-}
+};
