@@ -49,7 +49,6 @@ exports.blogpost_create_post = [
     const blogpost = new Blogpost({
       title: req.body.title,
       text: req.body.text,
-      published: req.body.published,
       timestamp: new Date(),
       username: req.authData.user.username,
     });
@@ -63,6 +62,7 @@ exports.blogpost_create_post = [
           published: blogpost.published,
           timestamp: blogpost.timestamp,
           username: blogpost.username,
+          comments: blogpost.comments,
         }
       });
     } catch (error) {
@@ -71,7 +71,7 @@ exports.blogpost_create_post = [
   }
 ];
 
-exports.blogpost_list = async (req, res, next) => {
+exports.blogpost_list = async (req, res) => {
   try {
     let blogposts = await Blogpost.find({}, {title: 1, text: 1, timestamp: -1})
       .populate("title")

@@ -8,7 +8,8 @@ const BlogpostSchema = new Schema({
   userid: { type: String },
   timestamp: { type: Date },
   username: { type: String },
-  published: { type: Boolean, default: false},
+  comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
+  published: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("Blogpost", BlogpostSchema);
