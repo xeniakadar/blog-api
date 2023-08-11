@@ -9,7 +9,24 @@ const jwt = require("jsonwebtoken");
 const { body, validationResult } = require('express-validator');
 
 exports.blogpost_create_post = [
-  //verifyToken,
+  (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+        if (err) {
+          res.sendStatus(403);
+        } else {
+          req.authData = authData;
+          next();
+        }
+      })
+    } else {
+      res.sendStatus(403);
+    }
+  },
 
   body("title", "Title must be specified")
     .trim()
@@ -34,7 +51,7 @@ exports.blogpost_create_post = [
       text: req.body.text,
       published: req.body.published,
       timestamp: new Date(),
-      username: req.body.username,
+      username: req.authData.user.username,
     });
     try {
       await blogpost.save();
@@ -118,6 +135,11 @@ exports.blogpost_delete =async (req, res, next) => {
     if (!blogpost) {
       return res.status(404).json({ message: `blogpost ${req.params.id} not found` });
     }
+
+    if (req.user && blogpost.username.toString() !== req.user.username) {
+      return res.status(403).json({ message: "Unauthroized, check blogController"});
+    }
+
     return res.status(200).json({ message: `post ${req.params.id} deleted successfully` });
   } catch (error) {
     return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });

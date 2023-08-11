@@ -92,7 +92,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', indexRouter);
-
+//TEST
+// app.get('/api/test', passport.authenticate('local', { session: false }), (req, res) => {
+//   res.json({ user: req.user });
+// });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
