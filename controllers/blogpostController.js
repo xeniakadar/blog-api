@@ -82,6 +82,35 @@ exports.blogpost_detail = async (req, res, next) => {
   }
 }
 
+exports.blogpost_update = [
+  body("title", "Title must be specified")
+    .trim()
+    .isLength({ max: 30 })
+    .escape(),
+  body("text", "Your blogpost must be at least 5 characters long")
+    .trim()
+    .isLength({ min: 5 })
+    .escape(),
+  async (req, res) => {
+    try {
+      const updatedData = {};
+      if (req.body.title) {
+        updatedData.title = req.body.title;
+      }
+      if (req.body.text) {
+        updatedData.text = req.body.text;
+      }
+      const updatedBlogpost = await Blogpost.findByIdAndUpdate(req.params.id, updatedData, {new: true});
+      if (!updatedBlogpost) {
+        return res.status(404).json({ error: "blogpost not found"});
+      }
+      return res.status(200).json(updatedBlogpost);
+    } catch(error) {
+      return res.status(500).json({ error: "error updating blogpost"});
+    }
+  }
+]
+
 
 function verifyToken(req, res, next) {
   const bearerHeader = req.headers['authorization'];

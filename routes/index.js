@@ -17,12 +17,12 @@ router.post('/login', user_controller.login_post);
 router.get('/logout', user_controller.logout_get);
 
 // blogpost stuff post, update, delete, get
-// get one post
 //delete post
 //update post
 
 router.post("/blogposts", blogpost_controller.blogpost_create_post);
 router.get("/blogposts", blogpost_controller.blogpost_list);
 router.get("/blogposts/:id", blogpost_controller.blogpost_detail);
+router.put("/blogposts/:id", blogpost_controller.blogpost_update);
 
 module.exports = router;
