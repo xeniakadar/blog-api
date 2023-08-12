@@ -3,6 +3,7 @@ const { body, validationResult } = require("express-validator");
 
 const jwt = require("jsonwebtoken");
 const Topic = require("../models/topic");
+const Blogpost = require("../models/blogpost");
 
 exports.topic_create_post = [
   body("title", "Username must be specified")
@@ -43,16 +44,17 @@ exports.topic_list = async (req, res) => {
 
 exports.topic_detail = async (req, res, next) => {
   try {
-    const topic = await Topic.findById(req.params.id)
-    .populate("username topic")
-    .exec();
-    if (topic === null) {
-      const err = new Error("topic not found");
+    const [topic, blogpostsInTopic ] = await Promise.all([
+      Topic.findById(req.params.topicId).exec(),
+      Blogpost.find({ topic: req.params.topicId}, "title username").exec(),
+    ]);
+
+    if (!topic) {
+      const err = new Error("Topic not found");
       err.status = 404;
       return next(err);
     }
-
-    return res.status(200).json(topic);
+    return res.status(200).json({topic, blogpostsInTopic});
   } catch(error) {
     return res.status(500).json({ error: "error getting topic"});
   }

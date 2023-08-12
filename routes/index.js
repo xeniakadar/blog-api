@@ -30,7 +30,7 @@ router.post("/blogposts/:id/publish", blogpost_controller.blogpost_publish);
 //blogpost topic get all topics, get all posts under topic
 router.get("/topics", topic_controller.topic_list);
 router.post("/topics", topic_controller.topic_create_post);
-router.get("/topics/:topicId/blogposts", topic_controller.topic_detail);
+router.get("/topics/:topicId", topic_controller.topic_detail);
 
 //comment stuff getall, post, getone, delete
 
