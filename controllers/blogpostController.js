@@ -159,19 +159,22 @@ exports.blogpost_delete =[
 
   async (req, res, next) => {
   try {
-
-    const blogpost = await Blogpost.findByIdAndRemove(req.params.id).exec();
-    const commentsDeleted = await Comment.deleteMany({blogpostid: req.params.id});
+    const blogpost = await Blogpost.findById(req.params.id).exec();
     if (!blogpost) {
       return res.status(404).json({ message: `blogpost ${req.params.id} not found, ` });
     }
-
-    if (req.user && blogpost.username.toString() !== req.user.username) {
-      return res.status(403).json({ message: "Unauthroized, check blogController", comments: commentsDeleted});
+    //check if owner of post
+    if ( blogpost.username.toString() !== req.authData.user.username) {
+      return res.status(403).json({ message: "Unauthroized: youre not the author of this post", comments: commentsDeleted});
     }
+
+    //user can delete post
+    const commentsDeleted = await Comment.deleteMany({blogpostid: req.params.id});
+    const blogpostDeleted = await Blogpost.findByIdAndRemove(req.params.id).exec();
 
     return res.status(200).json({ message: `post ${req.params.id} deleted successfully` });
   } catch (error) {
+    console.log(error, req.user);
     return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
   }
 }]

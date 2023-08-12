@@ -60,33 +60,6 @@ exports.signup_post = [
   }
 ];
 
-// exports.login_post = async function (req, res, next) {
-//   try {
-//     passport.authenticate('local', { session: false}, (err, user, info) => {
-//       if (err || !user) {
-//         const error = new Error('User does not exist');
-//         return res.status(403).json({
-//           info
-//         })
-//       }
-//       req.login(user, {session: false}, (err) => {
-//         if (err) {
-//           next(err);
-//         }
-//         // token
-//         const body = {
-//           _id: user._id,
-//           username: user.username,
-//           email: user.email,
-//         };
-//         const token = jwt.sign({ user: body}, process.env.SECRET, {expiresIn: '1h'});
-//         return res.status(200).json({body, token});
-//       });
-//     }) (req, res, next);
-//   } catch (err) {
-//     res.status(403).json({ err });
-//   }
-// };
 exports.login_post = async function (req, res, next) {
   try {
     passport.authenticate('local', { session: false }, (err, user, info) => {
