@@ -92,6 +92,18 @@ exports.comment_list = async (req, res) => {
   }
 }
 
-exports.comment_detail = []
+exports.comment_detail = async (req, res, next) => {
+  try {
+    const comment = await Comment.findById(req.params.id).exec();
+    if (comment === null) {
+      const err = new Error("comment not found");
+      err.status = 404;
+      return next(err);
+    }
+    return res.status(200).json(comment);
+  } catch(error) {
+    return res.status(500).json({error: "error getting comment"});
+  }
+}
 
 exports.comment_delete = []
