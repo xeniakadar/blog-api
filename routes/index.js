@@ -8,6 +8,7 @@ const User = require("../models/user");
 const user_controller = require("../controllers/userController");
 const blogpost_controller = require("../controllers/blogpostController");
 const comment_controller = require("../controllers/commentController");
+const topic_controller = require("../controllers/topicController");
 
 /* GET home page. */
 
@@ -25,6 +26,11 @@ router.get("/blogposts/:id", blogpost_controller.blogpost_detail);
 router.put("/blogposts/:id", blogpost_controller.blogpost_update);
 router.delete("/blogposts/:id", blogpost_controller.blogpost_delete);
 router.post("/blogposts/:id/publish", blogpost_controller.blogpost_publish);
+
+//blogpost topic get all topics, get all posts under topic
+router.get("/topics", topic_controller.topic_list);
+router.post("/topics", topic_controller.topic_create_post);
+router.get("/topics/:topicId/blogposts", topic_controller.topic_detail);
 
 //comment stuff getall, post, getone, delete
 

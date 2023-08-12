@@ -215,4 +215,4 @@ exports.blogpost_publish = [
       next(error);
     }
   }
-]
+];
