@@ -94,7 +94,7 @@ exports.comment_list = async (req, res) => {
 
 exports.comment_detail = async (req, res, next) => {
   try {
-    const comment = await Comment.findById(req.params.id).exec();
+    const comment = await Comment.findById(req.params.commentId).exec();
     if (comment === null) {
       const err = new Error("comment not found");
       err.status = 404;
@@ -106,4 +106,38 @@ exports.comment_detail = async (req, res, next) => {
   }
 }
 
-exports.comment_delete = []
+exports.comment_delete = [
+  (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+        if (err) {
+          res.sendStatus(403);
+        } else {
+          req.authData = authData;
+          next();
+        }
+      })
+    } else {
+      res.sendStatus(403);
+    }
+  },
+  async(req, res, next ) => {
+    try {
+      const comment = await Comment.findByIdAndRemove(req.params.commentId);
+      const blogpost = await Blogpost.findById(req.params.id);
+      if (!comment) {
+        return res.status(404).json({ message: `comment with id: "${req.params.commentId}" not found`})
+      }
+      if (req.user !== req.user.username || blogpost.username.toString() !== req.user.username) {
+        return res.status(403).json({message: "unauthorized to delete comment"});
+      }
+      return res.status(200).json({message: `comment with id: ${req.params.commentId}, under the post with id${req.params.id} removed`});
+    } catch(error) {
+      return res.status(500).json({ error: `error deleting blogpost id ${req.params.commentId} under the post with id${req.params.id}`})
+    }
+  }
+]

@@ -29,7 +29,7 @@ router.delete("/blogposts/:id", blogpost_controller.blogpost_delete);
 
 router.post("/blogposts/:id/comments", comment_controller.comment_create);
 router.get("/blogposts/:id/comments", comment_controller.comment_list);
-router.get("/blogposts/:id/comments/:id", comment_controller.comment_detail);
-router.delete("/blogposts/:id/comments/:id", comment_controller.comment_delete);
+router.get("/blogposts/:id/comments/:commentId", comment_controller.comment_detail);
+router.delete("/blogposts/:id/comments/:commentId", comment_controller.comment_delete);
 
 module.exports = router;
