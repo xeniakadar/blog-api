@@ -3,6 +3,7 @@ const express = require('express');
 const asyncHandler = require("express-async-handler");
 const bodyParser = require("body-parser");
 const Blogpost = require("../models/blogpost");
+const Comment = require("../models/comment");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
@@ -151,7 +152,9 @@ exports.blogpost_delete =[
 
   async (req, res, next) => {
   try {
+
     const blogpost = await Blogpost.findByIdAndRemove(req.params.id).exec();
+    const commentsDeleted = await Comment.deleteMany({blogpostid: req.params.id});
     if (!blogpost) {
       return res.status(404).json({ message: `blogpost ${req.params.id} not found` });
     }
@@ -165,16 +168,3 @@ exports.blogpost_delete =[
     return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
   }
 }]
-
-
-function verifyToken(req, res, next) {
-  const bearerHeader = req.headers['authorization'];
-  if (typeof bearerHeader !== 'undefined') {
-    const bearer = bearerHeader.split(" ");
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
-    next();
-  } else {
-    res.sendStatus(403);
-  }
-};
