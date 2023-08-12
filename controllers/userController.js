@@ -43,6 +43,7 @@ exports.signup_post = [
       username: req.body.username,
       email: req.body.email,
       password: passwordHash,
+      admin: req.body.admin,
     });
     try {
       await user.save();
@@ -52,6 +53,7 @@ exports.signup_post = [
           id: user._id,
           username: user.username,
           email: user.email,
+          admin: user.admin,
         }
       });
     } catch (error) {
@@ -77,6 +79,7 @@ exports.login_post = async function (req, res, next) {
           _id: user._id,
           username: user.username,
           email: user.email,
+          admin: user.admin,
         };
         const token = jwt.sign({ user: body}, process.env.SECRET, {expiresIn: '1h'});
         return res.status(200).json({body, token});

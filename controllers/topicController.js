@@ -4,8 +4,28 @@ const { body, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const Topic = require("../models/topic");
 const Blogpost = require("../models/blogpost");
+const User = require("../models/user");
 
 exports.topic_create_post = [
+  (req, res, next) => {
+  const bearerHeader = req.headers['authorization'];
+  if (typeof bearerHeader !== 'undefined') {
+    const bearer = bearerHeader.split(" ");
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
+    jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+      if (err) {
+        res.sendStatus(403);
+      } else {
+        console.log(authData)
+        req.authData = authData;
+        next();
+      }
+    })
+  } else {
+    res.sendStatus(403);
+  }
+},
   body("title", "Username must be specified")
     .trim()
     .escape(),
@@ -17,15 +37,22 @@ exports.topic_create_post = [
       title: req.body.title,
     });
     try {
-      await topic.save();
-      return res.status(201).json({
-        message: "title added successfully",
-        topic: {
-          id: topic._id,
-          title: topic.title,
-        }
-      });
+      if (req.authData.user.admin === true) {
+        await topic.save();
+        return res.status(201).json({
+          message: "title added successfully",
+          topic: {
+            id: topic._id,
+            title: topic.title,
+          }
+        });
+      } else {
+        return res.status(403).json({
+          message:`You must be an administrator to create a topic user: ${req.authData.user.admin}`
+        })
+      }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ error: "error adding topic "});
     }
   }
