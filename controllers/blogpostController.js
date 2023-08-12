@@ -54,6 +54,7 @@ exports.blogpost_create_post = [
       topic: req.body.topic,
       timestamp: new Date(),
       username: req.authData.user.username,
+      userid: req.authData.user._id,
     });
     try {
       await blogpost.save();
@@ -65,6 +66,7 @@ exports.blogpost_create_post = [
           published: blogpost.published,
           timestamp: blogpost.timestamp,
           username: blogpost.username,
+          userid: blogpost.userid,
           comments: blogpost.comments,
           topic: blogpost.topic,
         }
@@ -137,7 +139,7 @@ exports.blogpost_update = [
 ]
 
 // this needs to be changed
-exports.blogpost_delete =[
+exports.blogpost_delete = [
   (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
     if (typeof bearerHeader !== 'undefined') {
@@ -158,26 +160,27 @@ exports.blogpost_delete =[
   },
 
   async (req, res, next) => {
-  try {
-    const blogpost = await Blogpost.findById(req.params.id).exec();
-    if (!blogpost) {
-      return res.status(404).json({ message: `blogpost ${req.params.id} not found, ` });
-    }
-    //check if owner of post
-    if ( blogpost.username.toString() !== req.authData.user.username) {
-      return res.status(403).json({ message: "Unauthroized: youre not the author of this post", comments: commentsDeleted});
-    }
+    try {
+      const blogpost = await Blogpost.findById(req.params.id).exec();
+      if (!blogpost) {
+        return res.status(404).json({ message: `blogpost ${req.params.id} not found, ` });
+      }
+      //check if owner of post
+      if ( blogpost.userid.toString() !== req.authData.user._id) {
+        return res.status(403).json({ message: "Unauthroized: youre not the author of this post", comments: commentsDeleted});
+      }
 
-    //user can delete post
-    const commentsDeleted = await Comment.deleteMany({blogpostid: req.params.id});
-    const blogpostDeleted = await Blogpost.findByIdAndRemove(req.params.id).exec();
+      //user can delete post
+      const commentsDeleted = await Comment.deleteMany({blogpostid: req.params.id});
+      const blogpostDeleted = await Blogpost.findByIdAndRemove(req.params.id).exec();
 
-    return res.status(200).json({ message: `post ${req.params.id} deleted successfully` });
-  } catch (error) {
-    console.log(error, req.user);
-    return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
+      return res.status(200).json({ message: `post ${req.params.id} deleted successfully` });
+    } catch (error) {
+      console.log(error, req.user);
+      return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
+    }
   }
-}]
+];
 
 exports.blogpost_publish = [
   (req, res, next) => {

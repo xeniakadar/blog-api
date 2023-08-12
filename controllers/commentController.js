@@ -50,7 +50,8 @@ exports.comment_create = [(req, res, next) => {
         text: req.body.text,
         timestamp: new Date(),
         username: req.authData.user.username,
-        blogpostid: req.params.id
+        blogpostid: req.params.id,
+        userid: req.authData.user._id,
       });
       await comment.save();
 
@@ -64,6 +65,7 @@ exports.comment_create = [(req, res, next) => {
           comment: comment.username,
           timestamp: comment.timestamp,
           blogpostid: comment.blogpostid,
+          userid: comment.userid,
         }
       });
     } catch(error) {
@@ -134,10 +136,11 @@ exports.comment_delete = [
         return res.status(404).json({ message: `comment with id: "${req.params.commentId}" not found`})
       }
 
-      if (comment.username.toString() !== req.authData.user.username && blogpost.username.toString() !== req.authData.user.username) {
+      if (comment.userid.toString() !== req.authData.user._id && blogpost.userid.toString() !== req.authData.user._id) {
         return res.status(403).json({message: "unauthorized to delete comment"});
       }
-      const commentDeleted = await Comment.findByIdAndRemove(req.params.commentId);
+      await Blogpost.findByIdAndUpdate(req.params.id, { $pull: { comments: comment._id } });
+      await Comment.findByIdAndRemove(req.params.commentId);
       return res.status(200).json({message: `comment with id: ${req.params.commentId}, under the post with id${req.params.id} removed`});
     } catch(error) {
       return res.status(500).json({ error: `error deleting blogpost id ${req.params.commentId} under the post with id${req.params.id}`})
