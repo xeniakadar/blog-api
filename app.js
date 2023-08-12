@@ -10,6 +10,7 @@ require('dotenv').config();
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
 const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
 const compression = require("compression");
@@ -46,6 +47,9 @@ db.once("open", () => { console.log("connected to MongoDB database")});
 app.use(
   session({
     secret: process.env.SECRET,
+    store: MongoStore.create({
+      mongoUrl: 'mongodb://localhost/blog-api'
+    }),
     resave: false,
     saveUninitialized: false,
   })
