@@ -1,6 +1,5 @@
 /* eslint-disable */
 const express = require('express');
-const asyncHandler = require("express-async-handler");
 const bodyParser = require("body-parser");
 const Comment = require("../models/comment");
 const User = require("../models/user");
@@ -42,15 +41,20 @@ exports.comment_create = [(req, res, next) => {
       })
     }
 
-    const comment = new Comment({
-      text: req.body.text,
-      timestamp: new Date(),
-      username: req.authData.user.username,
-    });
 
     try {
-      await comment.save();
       const blogpost = await Blogpost.findById(req.params.id);
+      if (!blogpost) {
+        return res.status(404).json({ error: "blog post not found"});
+      }
+      const comment = new Comment({
+        text: req.body.text,
+        timestamp: new Date(),
+        username: req.authData.user.username,
+        blogpostid: req.params.id
+      });
+      await comment.save();
+
       blogpost.comments.push(comment._id);
       await blogpost.save();
       return res.status(201).json({
@@ -60,6 +64,7 @@ exports.comment_create = [(req, res, next) => {
           title: comment.text,
           comment: comment.username,
           timestamp: comment.timestamp,
+          blogpostid: comment.blogpostid,
         }
       });
     } catch(error) {
@@ -67,4 +72,4 @@ exports.comment_create = [(req, res, next) => {
       return res.status(500).json({ error: "Error creating comment"});
     }
   }
-]
+];

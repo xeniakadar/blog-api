@@ -129,7 +129,27 @@ exports.blogpost_update = [
 ]
 
 // this needs to be changed
-exports.blogpost_delete =async (req, res, next) => {
+exports.blogpost_delete =[
+  (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+        if (err) {
+          res.sendStatus(403);
+        } else {
+          req.authData = authData;
+          next();
+        }
+      })
+    } else {
+      res.sendStatus(403);
+    }
+  },
+
+  async (req, res, next) => {
   try {
     const blogpost = await Blogpost.findByIdAndRemove(req.params.id).exec();
     if (!blogpost) {
@@ -144,7 +164,7 @@ exports.blogpost_delete =async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
   }
-}
+}]
 
 
 function verifyToken(req, res, next) {
