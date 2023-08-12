@@ -156,11 +156,11 @@ exports.blogpost_delete =[
     const blogpost = await Blogpost.findByIdAndRemove(req.params.id).exec();
     const commentsDeleted = await Comment.deleteMany({blogpostid: req.params.id});
     if (!blogpost) {
-      return res.status(404).json({ message: `blogpost ${req.params.id} not found` });
+      return res.status(404).json({ message: `blogpost ${req.params.id} not found, ` });
     }
 
     if (req.user && blogpost.username.toString() !== req.user.username) {
-      return res.status(403).json({ message: "Unauthroized, check blogController"});
+      return res.status(403).json({ message: "Unauthroized, check blogController", comments: commentsDeleted});
     }
 
     return res.status(200).json({ message: `post ${req.params.id} deleted successfully` });

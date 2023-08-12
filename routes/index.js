@@ -25,8 +25,11 @@ router.get("/blogposts/:id", blogpost_controller.blogpost_detail);
 router.put("/blogposts/:id", blogpost_controller.blogpost_update);
 router.delete("/blogposts/:id", blogpost_controller.blogpost_delete);
 
-//comment stuff get, post, delete
+//comment stuff getall, post, getone, delete
 
 router.post("/blogposts/:id/comments", comment_controller.comment_create);
+router.get("/blogposts/:id/comments", comment_controller.comment_list);
+router.get("/blogposts/:id/comments/:id", comment_controller.comment_detail);
+router.delete("/blogposts/:id/comments/:id", comment_controller.comment_delete);
 
 module.exports = router;

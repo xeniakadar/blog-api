@@ -41,7 +41,6 @@ exports.comment_create = [(req, res, next) => {
       })
     }
 
-
     try {
       const blogpost = await Blogpost.findById(req.params.id);
       if (!blogpost) {
@@ -68,8 +67,31 @@ exports.comment_create = [(req, res, next) => {
         }
       });
     } catch(error) {
-      console.log("error creating message", error);
+      console.log("error creating comment", error); //delete
       return res.status(500).json({ error: "Error creating comment"});
     }
   }
 ];
+
+exports.comment_list = async (req, res) => {
+  try {
+    const [blogpost, allComments] = await Promise.all([
+      Blogpost.findById(req.params.id).exec(),
+      Comment.find({ blogpostid: req.params.id }, "text username timestamp").exec()
+    ]);
+
+    if (!blogpost) {
+      return res.status(404).json({ error: "blog post not found"});
+    }
+
+    return res.status(200).json({ allComments })
+
+  } catch(error) {
+    console.log("error getting comments", error); //delete
+    return res.status(500).json({ error: "error gettings comments"})
+  }
+}
+
+exports.comment_detail = []
+
+exports.comment_delete = []
