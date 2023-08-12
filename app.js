@@ -12,6 +12,13 @@ const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
+const compression = require("compression");
+const helmet = require("helmet");
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20,
+});
 
 const indexRouter = require('./routes/index');
 // const blogpostsRouter = require('./routes/blogposts');
@@ -19,9 +26,12 @@ const User = require("./models/user");
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
-app.use(cors());
+app.use(compression());
+app.use(helmet());
+app.use(limiter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -92,10 +102,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', indexRouter);
-//TEST
-// app.get('/api/test', passport.authenticate('local', { session: false }), (req, res) => {
-//   res.json({ user: req.user });
-// });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
