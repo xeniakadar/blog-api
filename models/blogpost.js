@@ -9,7 +9,7 @@ const BlogpostSchema = new Schema({
   timestamp: { type: Date },
   username: { type: String },
   comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
-  topic: { type: String, enum: ["Nature", "Beach", "City Breaks", "Other"] },
+  topic: { type: Schema.Types.ObjectId, ref: "Topic" },
   published: { type: Boolean, default: false },
 });
 
