@@ -44,12 +44,14 @@ exports.blogpost_create_post = [
       return res.status(403).json({
         title: req.body.title,
         text: req.body.text,
+        topic: req.body.topic,
         errors: errors.array(),
       });
     }
     const blogpost = new Blogpost({
       title: req.body.title,
       text: req.body.text,
+      topic: req.body.topic,
       timestamp: new Date(),
       username: req.authData.user.username,
     });
@@ -64,9 +66,11 @@ exports.blogpost_create_post = [
           timestamp: blogpost.timestamp,
           username: blogpost.username,
           comments: blogpost.comments,
+          topic: blogpost.topic,
         }
       });
     } catch (error) {
+      console.log(error)
       return res.status(500).json({ error: "Error creating blogpost"})
     }
   }
@@ -86,7 +90,7 @@ exports.blogpost_list = async (req, res) => {
 exports.blogpost_detail = async (req, res, next) => {
   try {
     const blogpost = await Blogpost.findById(req.params.id)
-    .populate("username")
+    .populate("username topic")
     .exec();
     if (blogpost === null) {
       const err = new Error("Blogpost not found");
@@ -117,6 +121,9 @@ exports.blogpost_update = [
       }
       if (req.body.text) {
         updatedData.text = req.body.text;
+      }
+      if (req.body.topic) {
+        updatedData.topic = req.body.topic;
       }
       const updatedBlogpost = await Blogpost.findByIdAndUpdate(req.params.id, updatedData, {new: true});
       if (!updatedBlogpost) {
@@ -168,3 +175,38 @@ exports.blogpost_delete =[
     return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
   }
 }]
+
+exports.blogpost_publish = [
+  (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+        if (err) {
+          res.sendStatus(403);
+        } else {
+          req.authData = authData;
+          next();
+        }
+      })
+    } else {
+      res.sendStatus(403);
+    }
+  },
+  async (req, res, next) => {
+    try {
+      const blogpost = await Blogpost.findById(req.params.id);
+      if (blogpost) {
+        blogpost.published = !blogpost.published;
+        await blogpost.save();
+        return res.status(200).json({ message: "Blog published successfully"});
+      } else {
+        return res.status(404).json({ message: "Blog post not found"});
+      }
+    } catch(error) {
+      next(error);
+    }
+  }
+]

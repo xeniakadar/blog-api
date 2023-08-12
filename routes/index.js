@@ -24,6 +24,7 @@ router.get("/blogposts", blogpost_controller.blogpost_list);
 router.get("/blogposts/:id", blogpost_controller.blogpost_detail);
 router.put("/blogposts/:id", blogpost_controller.blogpost_update);
 router.delete("/blogposts/:id", blogpost_controller.blogpost_delete);
+router.post("/blogposts/:id/publish", blogpost_controller.blogpost_publish);
 
 //comment stuff getall, post, getone, delete
 
