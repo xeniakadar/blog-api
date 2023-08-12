@@ -1,10 +1,6 @@
 /* eslint-disable */
-const express = require('express');
-const asyncHandler = require("express-async-handler");
-const bodyParser = require("body-parser");
 const Blogpost = require("../models/blogpost");
 const Comment = require("../models/comment");
-const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
 const { body, validationResult } = require('express-validator');

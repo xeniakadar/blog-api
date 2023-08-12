@@ -4,7 +4,7 @@ const { body, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const Topic = require("../models/topic");
 const Blogpost = require("../models/blogpost");
-const User = require("../models/user");
+
 
 exports.topic_create_post = [
   (req, res, next) => {

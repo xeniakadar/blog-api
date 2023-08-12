@@ -1,8 +1,5 @@
 /* eslint-disable */
-const express = require('express');
-const bodyParser = require("body-parser");
 const Comment = require("../models/comment");
-const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const Blogpost = require("../models/blogpost");
 

@@ -1,9 +1,6 @@
 /* eslint-disable */
 const express = require('express');
 const router = express.Router();
-const jwt = require("jsonwebtoken");
-const passport = require("passport");
-const User = require("../models/user");
 // const blogpost_controller = require("../controllers/blogpostController");
 const user_controller = require("../controllers/userController");
 const blogpost_controller = require("../controllers/blogpostController");
