@@ -1,4 +1,3 @@
-/* eslint-disable */
 const Comment = require("../models/comment");
 const jwt = require("jsonwebtoken");
 const Blogpost = require("../models/blogpost");
