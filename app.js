@@ -51,7 +51,7 @@ app.use(
     }),
     resave: false,
     saveUninitialized: false,
-  })
+  });
 );
 
 passport.use(
