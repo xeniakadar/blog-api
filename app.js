@@ -15,10 +15,7 @@ const bodyParser = require("body-parser");
 const compression = require("compression");
 const helmet = require("helmet");
 const RateLimit = require("express-rate-limit");
-const limiter = RateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 20,
-});
+
 
 const indexRouter = require('./routes/index');
 // const blogpostsRouter = require('./routes/blogposts');
@@ -26,6 +23,11 @@ const User = require("./models/user");
 
 const app = express();
 
+app.set('trust proxy', true);
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20,
+});
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
