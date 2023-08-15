@@ -14,7 +14,9 @@ const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
 const compression = require("compression");
 const helmet = require("helmet");
+app.set('trust proxy', true);
 const RateLimit = require("express-rate-limit");
+
 
 
 const indexRouter = require('./routes/index');
@@ -22,7 +24,6 @@ const User = require("./models/user");
 
 const app = express();
 
-app.set('trust proxy', true);
 const limiter = RateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 20,
