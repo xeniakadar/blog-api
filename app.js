@@ -18,7 +18,6 @@ const RateLimit = require("express-rate-limit");
 
 
 const indexRouter = require('./routes/index');
-// const blogpostsRouter = require('./routes/blogposts');
 const User = require("./models/user");
 
 const app = express();
