@@ -17,8 +17,6 @@ const helmet = require("helmet");
 app.set('trust proxy', true);
 const RateLimit = require("express-rate-limit");
 
-
-
 const indexRouter = require('./routes/index');
 const User = require("./models/user");
 
