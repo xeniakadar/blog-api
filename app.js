@@ -28,7 +28,7 @@ const limiter = RateLimit({
   max: 20,
 });
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
@@ -48,7 +48,7 @@ app.use(
   session({
     secret: process.env.SECRET,
     store: MongoStore.create({
-      mongoUrl: 'mongodb://localhost/blog-api'
+      mongoUrl: process.env.MONGODB_URI
     }),
     resave: false,
     saveUninitialized: false,
