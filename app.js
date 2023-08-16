@@ -26,6 +26,7 @@ const User = require("./models/user");
 const limiter = RateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 20,
+  trustProxy: app.get("trust proxy")
 });
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
