@@ -83,7 +83,7 @@ exports.blogpost_create_post = [
 exports.blogpost_list = async (req, res) => {
   try {
     let blogposts = await Blogpost.find({}, {title: 1, text: 1, timestamp: -1})
-      .populate("title")
+      .populate("title text username topic")
       .exec();
     return res.status(200).json(blogposts)
   } catch(error) {
