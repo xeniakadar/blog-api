@@ -1,7 +1,9 @@
+/* eslint-disable */
 const Blogpost = require("../models/blogpost");
 const Comment = require("../models/comment");
 const jwt = require("jsonwebtoken");
 const Topic = require("../models/topic");
+const he = require('he');
 
 const { body, validationResult } = require('express-validator');
 
@@ -85,7 +87,13 @@ exports.blogpost_list = async (req, res) => {
     let blogposts = await Blogpost.find({}, {title: 1, text: 1, timestamp: -1})
       .populate("title text username topic")
       .exec();
-    return res.status(200).json(blogposts)
+
+    const decodedBlogposts = blogposts.map(post => ({
+      ...post._doc,
+      title: he.decode(post.title),
+      text: he.decode(post.text)
+    }));
+    return res.status(200).json(decodedBlogposts)
   } catch(error) {
     return res.status(500).json({ error: "error getting blogposts"})
   }
@@ -96,13 +104,21 @@ exports.blogpost_detail = async (req, res, next) => {
     const blogpost = await Blogpost.findById(req.params.id)
     .populate("username topic text timestamp")
     .exec();
+
     if (blogpost === null) {
       const err = new Error("Blogpost not found");
       err.status = 404;
       return next(err);
     }
 
-    return res.status(200).json(blogpost);
+    const decodedBlogpost = {
+      ...blogpost._doc,
+      title: he.decode(blogpost.title),
+      text: he.decode(blogpost.text)
+    };
+
+
+    return res.status(200).json(decodedBlogpost);
   } catch(error) {
     return res.status(500).json({ error: "error getting blogpost"});
   }
