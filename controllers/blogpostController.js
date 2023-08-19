@@ -1,6 +1,7 @@
 const Blogpost = require("../models/blogpost");
 const Comment = require("../models/comment");
 const jwt = require("jsonwebtoken");
+const Topic = require("../models/topic");
 
 const { body, validationResult } = require('express-validator');
 
@@ -43,10 +44,16 @@ exports.blogpost_create_post = [
         errors: errors.array(),
       });
     }
+    const topic = await Topic.findOne({ title: req.body.topic }).exec();
+    if (!topic) {
+      return res.status(404).json({ error: "topic not found" });
+    }
+    const topicId = topic._id;
+
     const blogpost = new Blogpost({
       title: req.body.title,
       text: req.body.text,
-      topic: req.body.topic,
+      topic: topicId,
       timestamp: new Date(),
       username: req.authData.user.username,
       userid: req.authData.user._id,

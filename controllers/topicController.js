@@ -25,7 +25,7 @@ exports.topic_create_post = [
     res.sendStatus(403);
   }
 },
-  body("title", "Username must be specified")
+  body("title", "topic must be specified")
     .trim()
     .escape(),
 
