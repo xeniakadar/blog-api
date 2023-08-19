@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const BlogpostSchema = new Schema({
   title: { type: String, required: true, maxLength: 30 },
-  text: { type: String, required: true, minLength: 5, maxLength: 300 },
+  text: { type: String, required: true, minLength: 5},
   userid: {type: Schema.Types.ObjectId, ref: "User" },
   timestamp: { type: Date },
   username: { type: String },
