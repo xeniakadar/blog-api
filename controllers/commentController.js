@@ -75,7 +75,9 @@ exports.comment_list = async (req, res) => {
   try {
     const [blogpost, allComments] = await Promise.all([
       Blogpost.findById(req.params.id).exec(),
-      Comment.find({ blogpostid: req.params.id }, "text username timestamp").exec()
+      Comment.find({ blogpostid: req.params.id }, "text username timestamp")
+        .sort({ timestamp: 1 })
+        .exec(),
     ]);
 
     if (!blogpost) {
