@@ -102,7 +102,7 @@ exports.blogpost_list = async (req, res) => {
 exports.blogpost_detail = async (req, res, next) => {
   try {
     const blogpost = await Blogpost.findById(req.params.id)
-    .populate("username topic text timestamp")
+    .populate("username topic text timestamp comments")
     .exec();
 
     if (blogpost === null) {
