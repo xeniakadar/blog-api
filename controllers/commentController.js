@@ -1,6 +1,8 @@
+/* eslint-disable */
 const Comment = require("../models/comment");
 const jwt = require("jsonwebtoken");
 const Blogpost = require("../models/blogpost");
+const he = require('he');
 
 const { body, validationResult } = require("express-validator");
 
@@ -80,11 +82,16 @@ exports.comment_list = async (req, res) => {
         .exec(),
     ]);
 
+    const decodedComments = allComments.map(comment => ({
+      ...comment._doc,
+      text: he.decode(comment.text)
+    }));
+
     if (!blogpost) {
       return res.status(404).json({ error: "blog post not found"});
     }
 
-    return res.status(200).json({ allComments })
+    return res.status(200).json({ decodedComments });
 
   } catch(error) {
     console.log("error getting comments", error); //delete
@@ -100,7 +107,13 @@ exports.comment_detail = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    return res.status(200).json(comment);
+
+    const decodedComment = {
+      ...comment._doc,
+      title: he.decode(comment.title),
+      text: he.decode(comment.text)
+    };
+    return res.status(200).json(decodedComment);
   } catch(error) {
     return res.status(500).json({error: "error getting comment"});
   }
