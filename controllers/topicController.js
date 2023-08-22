@@ -72,7 +72,10 @@ exports.topic_detail = async (req, res, next) => {
   try {
     const [topic, blogpostsInTopic ] = await Promise.all([
       Topic.findById(req.params.topicId).exec(),
-      Blogpost.find({ topic: req.params.topicId }).select("title usernmae timestamp text comments").populate(" username comments ").exec(),
+      Blogpost.find({ topic: req.params.topicId })
+        .select("title username timestamp text comments")
+        .populate("comments userid")
+        .exec()
     ]);
 
     if (!topic) {
@@ -84,4 +87,4 @@ exports.topic_detail = async (req, res, next) => {
   } catch(error) {
     return res.status(500).json({ error: "error getting topic"});
   }
-}
+};
