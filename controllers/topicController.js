@@ -72,7 +72,7 @@ exports.topic_detail = async (req, res, next) => {
   try {
     const [topic, blogpostsInTopic ] = await Promise.all([
       Topic.findById(req.params.topicId).exec(),
-      Blogpost.find({ topic: req.params.topicId }, "title username").populate("title username timestamp text comments ").exec(),
+      Blogpost.find({ topic: req.params.topicId }).select("title usernmae timestamp text comments").populate(" username comments ").exec(),
     ]);
 
     if (!topic) {
