@@ -14,6 +14,7 @@ const topic_controller = require("../controllers/topicController");
 router.post('/register', user_controller.signup_post);
 router.post('/login', user_controller.login_post);
 router.get('/logout', user_controller.logout_get);
+router.get('/users/:id', user_controller.get_user);
 
 // blogpost stuff post, update, delete, get
 

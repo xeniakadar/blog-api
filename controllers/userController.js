@@ -94,3 +94,19 @@ exports.login_post = async function (req, res, next) {
 exports.logout_get = (req, res, next) => {
   //logout handled on client side by clearing the local storage
 };
+
+exports.get_user = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).exec();
+
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    return res.status(200).json(user);
+  } catch(error) {
+    console.error("Internal error:", error);
+    return res.status(500).json({ error: "error getting user" });
+  }
+};
