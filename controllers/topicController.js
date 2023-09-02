@@ -2,8 +2,8 @@ const { body, validationResult } = require("express-validator");
 
 const jwt = require("jsonwebtoken");
 const Topic = require("../models/topic");
-const Blogpost = require("../models/blogpost");
-const he = require('he');
+const Blogpost = require("../models/blogpost");]
+
 
 exports.topic_create_post = [
   (req, res, next) => {
@@ -83,7 +83,6 @@ exports.topic_detail = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-
     return res.status(200).json({topic, blogpostsInTopic});
   } catch(error) {
     return res.status(500).json({ error: "error getting topic"});
