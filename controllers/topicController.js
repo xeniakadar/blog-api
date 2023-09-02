@@ -87,6 +87,7 @@ exports.topic_detail = async (req, res, next) => {
 
     const decodedBlogpost = blogpostsInTopic.map(post => ({
       ...post._doc,
+      title: he.decode(post.title),
       text: he.decode(post.text),
     }));
 
