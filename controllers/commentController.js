@@ -23,7 +23,7 @@ exports.comment_create = [(req, res, next) => {
   } else {
     res.sendStatus(403);
   }
-},
+  },
   body("text", "Comment must be at least 2 characters long")
     .trim()
     .isLength({ min: 2 })

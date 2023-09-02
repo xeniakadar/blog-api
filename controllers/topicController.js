@@ -1,9 +1,10 @@
+/* eslint-disable */
 const { body, validationResult } = require("express-validator");
 
 const jwt = require("jsonwebtoken");
 const Topic = require("../models/topic");
 const Blogpost = require("../models/blogpost");
-
+const he = require('he');
 
 exports.topic_create_post = [
   (req, res, next) => {
@@ -82,8 +83,15 @@ exports.topic_detail = async (req, res, next) => {
       const err = new Error("Topic not found");
       err.status = 404;
       return next(err);
-    }
-    return res.status(200).json({topic, blogpostsInTopic});
+    };
+
+    const decodedBlogposts = blogpostsInTopic.map(post => ({
+      ...post._doc,
+      title: he.decode(post.title),
+      text: he.decode(post.text)
+    }));
+
+    return res.status(200).json({topic, decodedBlogposts});
   } catch(error) {
     return res.status(500).json({ error: "error getting topic"});
   }
