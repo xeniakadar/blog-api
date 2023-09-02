@@ -71,12 +71,13 @@ exports.topic_list = async (req, res) => {
 
 exports.topic_detail = async (req, res, next) => {
   try {
-    const [topic, blogpostsInTopic ] = await Promise.all([
+    const [topic, blogpostsInTopic] = await Promise.all([
       Topic.findById(req.params.topicId).exec(),
       Blogpost.find({ topic: req.params.topicId })
         .select("title username timestamp text comments")
         .populate("comments userid")
-        .exec()
+        .sort({ timestamp: -1 })
+        .exec(),
     ]);
 
     if (!topic) {
