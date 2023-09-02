@@ -1,3 +1,4 @@
+/* eslint-disable */
 const Blogpost = require("../models/blogpost");
 const Comment = require("../models/comment");
 const jwt = require("jsonwebtoken");
@@ -111,10 +112,16 @@ exports.blogpost_detail = async (req, res, next) => {
       return next(err);
     }
 
+    const decodedComments = blogpost.comments.map(comment => ({
+      ...comment._doc,
+      text: he.decode(comment.text)
+    }));
+
     const decodedBlogpost = {
       ...blogpost._doc,
       title: he.decode(blogpost.title),
-      text: he.decode(blogpost.text)
+      text: he.decode(blogpost.text),
+      comments: decodedComments
     };
 
 
