@@ -85,11 +85,11 @@ exports.topic_detail = async (req, res, next) => {
       return next(err);
     };
 
-    const decodedBlogposts = blogpostsInTopic.map(post => ({
+    const decodedBlogposts = {
       ...post._doc,
       title: he.decode(post.title),
       text: he.decode(post.text)
-    }));
+    }
 
     return res.status(200).json({topic, decodedBlogposts});
   } catch(error) {
