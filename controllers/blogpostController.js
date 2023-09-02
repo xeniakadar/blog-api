@@ -46,7 +46,7 @@ exports.blogpost_create_post = [
         errors: errors.array(),
       });
     }
-    const topic = await Topic.findOne({ title: req.body.topic }).exec();
+    const topic = await Topic.findById(req.body.topic).exec();
     if (!topic) {
       return res.status(404).json({ error: "topic not found" });
     }
