@@ -132,6 +132,24 @@ exports.blogpost_detail = async (req, res, next) => {
 }
 
 exports.blogpost_update = [
+  (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+        if (err) {
+          res.sendStatus(403);
+        } else {
+          req.authData = authData;
+          next();
+        }
+      })
+    } else {
+      res.sendStatus(403);
+    }
+  },
   body("title", "Title must be specified")
     .trim()
     .isLength({ max: 30 })
@@ -156,6 +174,10 @@ exports.blogpost_update = [
       if (!updatedBlogpost) {
         return res.status(404).json({ error: "blogpost not found"});
       }
+      if ( updatedBlogpost.userid.toString() !== req.authData.user._id) {
+        return res.status(403).json({ message: "Unauthroized: youre not the author of this post"});
+      }
+
       return res.status(200).json(updatedBlogpost);
     } catch(error) {
       return res.status(500).json({ error: "error updating blogpost"});
@@ -163,7 +185,6 @@ exports.blogpost_update = [
   }
 ]
 
-// this needs to be changed
 exports.blogpost_delete = [
   (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
