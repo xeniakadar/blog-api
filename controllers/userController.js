@@ -168,7 +168,7 @@ exports.get_user_drafts = [
       return res.status(200).json(decodedBlogposts)
     } catch(error) {
       console.log(error)
-      return res.status(500).json({ error: "error getting blogposts"})
+      return res.status(500).json({ error: "error getting drafts"})
     }
   }
 
