@@ -86,7 +86,7 @@ exports.blogpost_create_post = [
 
 exports.blogpost_list = async (req, res) => {
   try {
-    let blogposts = await Blogpost.find({}, {title: 1, text: 1, timestamp: 1})
+    let blogposts = await Blogpost.find({published: true}, {title: 1, text: 1, timestamp: 1})
       .populate("title text username topic comments")
       .sort({timestamp: -1})
       .exec();
