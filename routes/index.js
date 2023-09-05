@@ -14,7 +14,7 @@ const topic_controller = require("../controllers/topicController");
 router.post('/register', user_controller.signup_post);
 router.post('/login', user_controller.login_post);
 router.get('/users/:id', user_controller.get_user);
-router.get('/users/:id/drafts', user_controller.get_unpublished_posts);
+router.get('/users/:id/drafts', user_controller.get_user_drafts);
 router.get('/users/:id/blogposts', user_controller.get_published_posts);
 
 // blogpost stuff post, update, delete, get

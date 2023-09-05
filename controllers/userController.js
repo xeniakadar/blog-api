@@ -130,7 +130,7 @@ exports.get_published_posts = async (req, res) => {
   }
 }
 
-exports.get_unpublished_posts = [
+exports.get_user_drafts = [
   (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
     if (typeof bearerHeader !== 'undefined') {
@@ -151,7 +151,11 @@ exports.get_unpublished_posts = [
   },
   async (req, res) => {
     try {
-      let blogposts = await Blogpost.find({userid: req.authData.user._id, published: false}, {title: 1, text: 1, timestamp: 1})
+      if (req.params.id !== req.authData.user._id) {
+        return res.status(403).json({ error: "Access denied"})
+      }
+      const user = await User.findById(req.params.id).exec();
+      let blogposts = await Blogpost.find({userid: user._id, published: false}, {title: 1, text: 1, timestamp: 1})
         .populate("title text username topic comments")
         .sort({timestamp: -1})
         .exec();
