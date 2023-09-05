@@ -51,6 +51,7 @@ exports.blogpost_create_post = [
       return res.status(404).json({ error: "topic not found" });
     }
     const topicId = topic._id;
+    const isPublished = req.body.published || false;
 
     const blogpost = new Blogpost({
       title: req.body.title,
@@ -59,6 +60,7 @@ exports.blogpost_create_post = [
       timestamp: new Date(),
       username: req.authData.user.username,
       userid: req.authData.user._id,
+      published: isPublished,
     });
     try {
       await blogpost.save();
