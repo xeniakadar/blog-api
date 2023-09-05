@@ -162,6 +162,14 @@ exports.blogpost_update = [
     .escape(),
   async (req, res) => {
     try {
+      const blogpost = await Blogpost.findById(req.params.id);
+      if (!blogpost) {
+        return res.status(404).json({ error: "blogpost not found" });
+      }
+      if (blogpost.userid.toString() !== req.authData.user._id) {
+        return res.status(403).json({ message: "Unauthorized: you're not the author of this post" });
+      }
+
       const updatedData = {};
       if (req.body.title) {
         updatedData.title = req.body.title;
@@ -172,17 +180,14 @@ exports.blogpost_update = [
       if (req.body.topic) {
         updatedData.topic = req.body.topic;
       }
-      const updatedBlogpost = await Blogpost.findByIdAndUpdate(req.params.id, updatedData, {new: true});
-      if (!updatedBlogpost) {
-        return res.status(404).json({ error: "blogpost not found"});
-      }
-      if ( updatedBlogpost.userid.toString() !== req.authData.user._id) {
-        return res.status(403).json({ message: "Unauthroized: youre not the author of this post"});
+      if (typeof req.body.published !== 'undefined') {
+        updatedData.published = req.body.published;
       }
 
+      const updatedBlogpost = await Blogpost.findByIdAndUpdate(req.params.id, updatedData, { new: true });
       return res.status(200).json(updatedBlogpost);
-    } catch(error) {
-      return res.status(500).json({ error: "error updating blogpost"});
+    } catch (error) {
+      return res.status(500).json({ error: "error updating blogpost" });
     }
   }
 ]
