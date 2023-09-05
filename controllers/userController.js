@@ -139,14 +139,14 @@ exports.get_user_drafts = [
       req.token = bearerToken;
       jwt.verify(req.token, process.env.SECRET, (err, authData) => {
         if (err) {
-          res.sendStatus(403);
+          res.status(403).json({ error: "Access denied" });
         } else {
           req.authData = authData;
           next();
         }
       });
     } else {
-      res.sendStatus(403);
+      res.status(403).json({ error: "Access denied" });
     }
   },
   async (req, res) => {
