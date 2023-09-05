@@ -110,6 +110,26 @@ exports.get_user = async (req, res, next) => {
   }
 };
 
+exports.get_published_posts = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).exec();
+    let blogposts = await Blogpost.find({userid: user._id, published: true}, {title: 1, text: 1, timestamp: 1})
+      .populate("title text username topic comments")
+      .sort({timestamp: -1})
+      .exec();
+
+    const decodedBlogposts = blogposts.map(post => ({
+      ...post._doc,
+      title: he.decode(post.title),
+      text: he.decode(post.text)
+    }));
+    return res.status(200).json(decodedBlogposts)
+  } catch(error) {
+    console.log(error)
+    return res.status(500).json({ error: "error getting blogposts"})
+  }
+}
+
 exports.get_unpublished_posts = [
   (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
