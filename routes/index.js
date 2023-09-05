@@ -13,8 +13,8 @@ const topic_controller = require("../controllers/topicController");
 // user stuff
 router.post('/register', user_controller.signup_post);
 router.post('/login', user_controller.login_post);
-router.get('/logout', user_controller.logout_get);
 router.get('/users/:id', user_controller.get_user);
+router.get('/users/:id/drafts', user_controller.get_unpublished_posts);
 
 // blogpost stuff post, update, delete, get
 

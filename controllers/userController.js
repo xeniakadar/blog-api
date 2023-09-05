@@ -1,9 +1,12 @@
+/* eslint-disable */
 const { body, validationResult } = require("express-validator");
 
+const Blogpost = require("../models/blogpost");
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const he = require('he');
 
 exports.signup_post = [
   body("username", "Username must be specified")
@@ -91,10 +94,6 @@ exports.login_post = async function (req, res, next) {
   }
 };
 
-exports.logout_get = (req, res, next) => {
-  //logout handled on client side by clearing the local storage
-};
-
 exports.get_user = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).exec();
@@ -105,8 +104,48 @@ exports.get_user = async (req, res, next) => {
       return next(err);
     }
     return res.status(200).json(user);
-  } catch(error) {
+  } catch (error) {
     console.error("Internal error:", error);
     return res.status(500).json({ error: "error getting user" });
   }
 };
+
+exports.get_unpublished_posts = [
+  (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+        if (err) {
+          res.sendStatus(403);
+        } else {
+          req.authData = authData;
+          next();
+        }
+      });
+    } else {
+      res.sendStatus(403);
+    }
+  },
+  async (req, res) => {
+    try {
+      let blogposts = await Blogpost.find({userid: req.authData.user._id, published: false}, {title: 1, text: 1, timestamp: 1})
+        .populate("title text username topic comments")
+        .sort({timestamp: -1})
+        .exec();
+
+      const decodedBlogposts = blogposts.map(post => ({
+        ...post._doc,
+        title: he.decode(post.title),
+        text: he.decode(post.text)
+      }));
+      return res.status(200).json(decodedBlogposts)
+    } catch(error) {
+      console.log(error)
+      return res.status(500).json({ error: "error getting blogposts"})
+    }
+  }
+
+]
