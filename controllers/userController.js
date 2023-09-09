@@ -113,7 +113,7 @@ exports.get_user = async (req, res, next) => {
 exports.get_published_posts = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).exec();
-    let blogposts = await Blogpost.find({userid: user._id, published: true}, {title: 1, text: 1, timestamp: 1})
+    let blogposts = await Blogpost.find({user: user._id, published: true}, {title: 1, text: 1, timestamp: 1})
       .populate("topic user comments")
       .sort({timestamp: -1})
       .exec();
@@ -155,7 +155,7 @@ exports.get_user_drafts = [
         return res.status(403).json({ error: "Access denied"})
       }
       const user = await User.findById(req.params.id).exec();
-      let blogposts = await Blogpost.find({userid: user._id, published: false}, {title: 1, text: 1, timestamp: 1})
+      let blogposts = await Blogpost.find({user: user._id, published: false}, {title: 1, text: 1, timestamp: 1})
         .populate("topic user comments")
         .sort({timestamp: -1})
         .exec();
