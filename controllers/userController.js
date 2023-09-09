@@ -114,7 +114,7 @@ exports.get_published_posts = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).exec();
     let blogposts = await Blogpost.find({userid: user._id, published: true}, {title: 1, text: 1, timestamp: 1})
-      .populate("title text username topic comments")
+      .populate("topic user comments")
       .sort({timestamp: -1})
       .exec();
 
@@ -156,7 +156,7 @@ exports.get_user_drafts = [
       }
       const user = await User.findById(req.params.id).exec();
       let blogposts = await Blogpost.find({userid: user._id, published: false}, {title: 1, text: 1, timestamp: 1})
-        .populate("title text username topic comments")
+        .populate("topic user comments")
         .sort({timestamp: -1})
         .exec();
 
