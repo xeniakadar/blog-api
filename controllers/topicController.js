@@ -74,8 +74,8 @@ exports.topic_detail = async (req, res, next) => {
     const [topic, blogpostsInTopic] = await Promise.all([
       Topic.findById(req.params.topicId).exec(),
       Blogpost.find({ topic: req.params.topicId })
-        .select("title username timestamp text comments")
-        .populate("comments userid")
+        .select("title user timestamp text comments")
+        .populate("comments user")
         .sort({ timestamp: -1 })
         .exec(),
     ]);
