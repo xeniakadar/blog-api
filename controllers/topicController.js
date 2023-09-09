@@ -60,11 +60,11 @@ exports.topic_create_post = [
 
 exports.topic_list = async (req, res) => {
   try {
-    let topics = await Topic.find({}, {title: 1})
+    let topics = await Topic.find({}, { title: 1 })
       .populate("title")
       .exec();
-    return res.status(200).json(topics)
-  } catch(error) {
+    return res.status(200).json(topics);
+  } catch (error) {
     return res.status(500).json({ error: "error getting topics"})
   }
 };
@@ -74,7 +74,7 @@ exports.topic_detail = async (req, res, next) => {
     const [topic, blogpostsInTopic] = await Promise.all([
       Topic.findById(req.params.topicId).exec(),
       Blogpost.find({ topic: req.params.topicId, published: true })
-        .select("title user timestamp text comments")
+        .select("title user timestamp text comments published")
         .populate("comments user")
         .sort({ timestamp: -1 })
         .exec(),
@@ -86,7 +86,7 @@ exports.topic_detail = async (req, res, next) => {
       return next(err);
     }
 
-    const decodedBlogpost = blogpostsInTopic.map(post => ({
+    const decodedBlogpost = blogpostsInTopic.map((post) => ({
       ...post._doc,
       title: he.decode(post.title),
       text: he.decode(post.text),
