@@ -47,9 +47,8 @@ exports.comment_create = [(req, res, next) => {
       const comment = new Comment({
         text: req.body.text,
         timestamp: new Date(),
-        username: req.authData.user.username,
         blogpostid: req.params.id,
-        userid: req.authData.user._id,
+        user: req.authData.user._id,
       });
       await comment.save();
 
@@ -60,10 +59,9 @@ exports.comment_create = [(req, res, next) => {
         comment: {
           id: comment._id,
           title: comment.text,
-          comment: comment.username,
           timestamp: comment.timestamp,
           blogpostid: comment.blogpostid,
-          userid: comment.userid,
+          user: comment.user,
         }
       });
     } catch(error) {
@@ -148,7 +146,7 @@ exports.comment_delete = [
         return res.status(404).json({ message: `comment with id: "${req.params.commentId}" not found`})
       }
 
-      if (comment.userid.toString() !== req.authData.user._id && blogpost.userid.toString() !== req.authData.user._id) {
+      if (comment.user.toString() !== req.authData.user._id && blogpost.user.toString() !== req.authData.user._id) {
         return res.status(403).json({message: "unauthorized to delete comment"});
       }
       await Blogpost.findByIdAndUpdate(req.params.id, { $pull: { comments: comment._id } });

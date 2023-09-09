@@ -58,8 +58,7 @@ exports.blogpost_create_post = [
       text: req.body.text,
       topic: topicId,
       timestamp: new Date(),
-      username: req.authData.user.username,
-      userid: req.authData.user._id,
+      user: req.authData.user._id,
       published: isPublished,
     });
     try {
@@ -71,8 +70,7 @@ exports.blogpost_create_post = [
           title: blogpost.title,
           published: blogpost.published,
           timestamp: blogpost.timestamp,
-          username: blogpost.username,
-          userid: blogpost.userid,
+          user: blogpost.user,
           comments: blogpost.comments,
           topic: blogpost.topic,
         }
@@ -87,7 +85,7 @@ exports.blogpost_create_post = [
 exports.blogpost_list = async (req, res) => {
   try {
     let blogposts = await Blogpost.find({published: true}, {title: 1, text: 1, timestamp: 1})
-      .populate("title text username topic comments")
+      .populate("user topic comments")
       .sort({timestamp: -1})
       .exec();
 
@@ -105,7 +103,7 @@ exports.blogpost_list = async (req, res) => {
 exports.blogpost_detail = async (req, res, next) => {
   try {
     const blogpost = await Blogpost.findById(req.params.id)
-    .populate("username topic text timestamp comments")
+    .populate("user topic comments")
     .exec();
 
     if (blogpost === null) {
@@ -166,7 +164,7 @@ exports.blogpost_update = [
       if (!blogpost) {
         return res.status(404).json({ error: "blogpost not found" });
       }
-      if (blogpost.userid.toString() !== req.authData.user._id) {
+      if (blogpost.user.toString() !== req.authData.user._id) {
         return res.status(403).json({ message: "Unauthorized: you're not the author of this post" });
       }
 
@@ -219,7 +217,7 @@ exports.blogpost_delete = [
         return res.status(404).json({ message: `blogpost ${req.params.id} not found, ` });
       }
       //check if owner of post
-      if ( blogpost.userid.toString() !== req.authData.user._id) {
+      if ( blogpost.user.toString() !== req.authData.user._id) {
         return res.status(403).json({ message: "Unauthroized: youre not the author of this post", comments: commentsDeleted});
       }
 

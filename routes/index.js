@@ -7,9 +7,6 @@ const blogpost_controller = require("../controllers/blogpostController");
 const comment_controller = require("../controllers/commentController");
 const topic_controller = require("../controllers/topicController");
 
-/* GET home page. */
-
-
 // user stuff
 router.post('/register', user_controller.signup_post);
 router.post('/login', user_controller.login_post);

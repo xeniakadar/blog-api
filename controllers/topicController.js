@@ -93,7 +93,7 @@ exports.topic_detail = async (req, res, next) => {
     }));
 
     return res.status(200).json({topic, decodedBlogpost});
-  } catch(error) {
+  } catch (error) {
     return res.status(500).json({ error: "error getting topic"});
   }
 };
