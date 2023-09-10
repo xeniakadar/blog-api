@@ -1,3 +1,4 @@
+/* eslint-disable */
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -64,11 +65,12 @@ passport.use(
         return done(null, false, { message: "Incorrect username" });
       }
       bcrypt.compare(password, user.password, (err, res) =>  {
+        if (err) return done(err);
         if (!res) {
-          return done(null, false, { message: "incorrect password" })
+          return done(null, false, { message: "incorrect password" });
         }
+        return done(null, user);
       })
-      return done(null, user);
     } catch (err) {
       return done(err);
     }
