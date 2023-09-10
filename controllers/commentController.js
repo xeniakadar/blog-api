@@ -76,8 +76,9 @@ exports.comment_list = async (req, res) => {
     const [blogpost, allComments] = await Promise.all([
       Blogpost.findById(req.params.id).exec(),
       Comment.find({ blogpostid: req.params.id }, "text user timestamp")
-        .sort({ timestamp: 1 })
-        .exec(),
+      .populate("user")
+      .sort({ timestamp: 1 })
+      .exec(),
     ]);
 
     const decodedComments = allComments.map(comment => ({
@@ -99,7 +100,9 @@ exports.comment_list = async (req, res) => {
 
 exports.comment_detail = async (req, res, next) => {
   try {
-    const comment = await Comment.findById(req.params.commentId).exec();
+    const comment = await Comment.findById(req.params.commentId)
+    .populate("user")
+    .exec();
     if (comment === null) {
       const err = new Error("comment not found");
       err.status = 404;
