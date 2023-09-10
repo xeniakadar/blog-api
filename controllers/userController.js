@@ -69,7 +69,7 @@ exports.login_post = async function (req, res, next) {
     passport.authenticate('local', { session: false }, (err, user, info) => {
       if (err || !user) {
         return res.status(403).json({
-          error: 'Authentication failed'
+          error: info.message || 'Authentication failed'
         });
       }
       req.login(user, {session: false}, (err) => {

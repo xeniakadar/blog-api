@@ -67,7 +67,7 @@ passport.use(
       bcrypt.compare(password, user.password, (err, res) =>  {
         if (err) return done(err);
         if (!res) {
-          return done(null, false, { message: "incorrect password" });
+          return done(null, false, { message: "Incorrect password" });
         }
         return done(null, user);
       })
