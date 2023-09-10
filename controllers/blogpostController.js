@@ -103,7 +103,7 @@ exports.blogpost_list = async (req, res) => {
 exports.blogpost_detail = async (req, res, next) => {
   try {
     const blogpost = await Blogpost.findById(req.params.id)
-    .populate("user topic comments comments.user")
+    .populate("user topic comments")
     .exec();
 
     if (blogpost === null) {

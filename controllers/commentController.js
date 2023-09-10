@@ -47,7 +47,7 @@ exports.comment_create = [(req, res, next) => {
       const comment = new Comment({
         text: req.body.text,
         timestamp: new Date(),
-        blogpostid: req.params.id,
+        blogpostId: req.params.id,
         user: req.authData.user._id,
       });
       await comment.save();
@@ -60,7 +60,7 @@ exports.comment_create = [(req, res, next) => {
           id: comment._id,
           title: comment.text,
           timestamp: comment.timestamp,
-          blogpostid: comment.blogpostid,
+          blogpostId: comment.blogpostId,
           user: comment.user,
         }
       });
@@ -75,7 +75,7 @@ exports.comment_list = async (req, res) => {
   try {
     const [blogpost, allComments] = await Promise.all([
       Blogpost.findById(req.params.id).exec(),
-      Comment.find({ blogpostid: req.params.id }, "text user timestamp")
+      Comment.find({ blogpostId: req.params.id }, "text user timestamp")
       .populate("user")
       .sort({ timestamp: 1 })
       .exec(),
@@ -90,7 +90,7 @@ exports.comment_list = async (req, res) => {
       return res.status(404).json({ error: "blog post not found"});
     }
 
-    return res.status(200).json({ decodedComments });
+    return res.status(200).json( decodedComments );
 
   } catch(error) {
     console.log("error getting comments", error); //delete
