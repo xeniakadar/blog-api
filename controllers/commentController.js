@@ -63,7 +63,7 @@ exports.comment_create = [(req, res, next) => {
         message: "comment successfully published",
         comment: {
           id: newComment._id,
-          title: newComment.text,
+          text: newComment.text,
           timestamp: newComment.timestamp,
           blogpostId: newComment.blogpostId,
           user: newComment.user,
