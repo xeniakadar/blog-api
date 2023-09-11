@@ -54,14 +54,19 @@ exports.comment_create = [(req, res, next) => {
 
       blogpost.comments.push(comment._id);
       await blogpost.save();
+
+      const newComment = await Comment.findById(comment._id)
+        .populate('user')
+        .exec();
+
       return res.status(201).json({
         message: "comment successfully published",
         comment: {
-          id: comment._id,
-          title: comment.text,
-          timestamp: comment.timestamp,
-          blogpostId: comment.blogpostId,
-          user: comment.user,
+          id: newComment._id,
+          title: newComment.text,
+          timestamp: newComment.timestamp,
+          blogpostId: newComment.blogpostId,
+          user: newComment.user,
         }
       });
     } catch(error) {
