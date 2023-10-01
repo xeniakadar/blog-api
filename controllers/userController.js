@@ -6,15 +6,15 @@ const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const he = require('he');
+const he = require("he");
 
 exports.signup_post = [
   body("username", "Username must be specified")
-    .custom(async(username) => {
+    .custom(async (username) => {
       try {
         const usernameExists = await User.findOne({ username: username });
         if (usernameExists) {
-          throw new Error('Username already exists');
+          throw new Error("Username already exists");
         }
       } catch (err) {
         throw new Error(err);
@@ -27,9 +27,7 @@ exports.signup_post = [
     .escape()
     .isEmail()
     .withMessage("Email must be specified"),
-  body("password", "Password must be specified")
-    .trim()
-    .escape(),
+  body("password", "Password must be specified").trim().escape(),
 
   async (req, res) => {
     const errors = validationResult(req);
@@ -56,23 +54,23 @@ exports.signup_post = [
           username: user.username,
           email: user.email,
           admin: user.admin,
-        }
+        },
       });
     } catch (error) {
-      return res.status(500).json({ error: "error registering user"});
+      return res.status(500).json({ error: "error registering user" });
     }
-  }
+  },
 ];
 
 exports.login_post = async function (req, res, next) {
   try {
-    passport.authenticate('local', { session: false }, (err, user, info) => {
+    passport.authenticate("local", { session: false }, (err, user, info) => {
       if (err || !user) {
         return res.status(403).json({
-          error: info.message || 'Authentication failed'
+          error: info.message || "Authentication failed",
         });
       }
-      req.login(user, {session: false}, (err) => {
+      req.login(user, { session: false }, (err) => {
         if (err) {
           next(err);
         }
@@ -83,13 +81,15 @@ exports.login_post = async function (req, res, next) {
           email: user.email,
           admin: user.admin,
         };
-        const token = jwt.sign({ user: body}, process.env.SECRET, {expiresIn: '1h'});
-        return res.status(200).json({body, token});
+        const token = jwt.sign({ user: body }, process.env.SECRET, {
+          expiresIn: "1h",
+        });
+        return res.status(200).json({ body, token });
       });
-    }) (req, res, next);
+    })(req, res, next);
   } catch (err) {
     return res.status(500).json({
-      error: 'Server error'
+      error: "Server error",
     });
   }
 };
@@ -113,27 +113,30 @@ exports.get_user = async (req, res, next) => {
 exports.get_published_posts = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).exec();
-    let blogposts = await Blogpost.find({user: user._id, published: true}, {title: 1, text: 1, timestamp: 1})
+    let blogposts = await Blogpost.find(
+      { user: user._id, published: true },
+      { title: 1, text: 1, timestamp: 1 },
+    )
       .populate("topic user comments")
-      .sort({timestamp: -1})
+      .sort({ timestamp: -1 })
       .exec();
 
-    const decodedBlogposts = blogposts.map(post => ({
+    const decodedBlogposts = blogposts.map((post) => ({
       ...post._doc,
       title: he.decode(post.title),
-      text: he.decode(post.text)
+      text: he.decode(post.text),
     }));
-    return res.status(200).json(decodedBlogposts)
-  } catch(error) {
-    console.log(error)
-    return res.status(500).json({ error: "error getting blogposts"})
+    return res.status(200).json(decodedBlogposts);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "error getting blogposts" });
   }
-}
+};
 
 exports.get_user_drafts = [
   (req, res, next) => {
-    const bearerHeader = req.headers['authorization'];
-    if (typeof bearerHeader !== 'undefined') {
+    const bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== "undefined") {
       const bearer = bearerHeader.split(" ");
       const bearerToken = bearer[1];
       req.token = bearerToken;
@@ -152,24 +155,26 @@ exports.get_user_drafts = [
   async (req, res) => {
     try {
       if (req.params.id !== req.authData.user._id) {
-        return res.status(403).json({ error: "Access denied"})
+        return res.status(403).json({ error: "Access denied" });
       }
       const user = await User.findById(req.params.id).exec();
-      let blogposts = await Blogpost.find({user: user._id, published: false}, {title: 1, text: 1, timestamp: 1})
+      let blogposts = await Blogpost.find(
+        { user: user._id, published: false },
+        { title: 1, text: 1, timestamp: 1 },
+      )
         .populate("topic user comments")
-        .sort({timestamp: -1})
+        .sort({ timestamp: -1 })
         .exec();
 
-      const decodedBlogposts = blogposts.map(post => ({
+      const decodedBlogposts = blogposts.map((post) => ({
         ...post._doc,
         title: he.decode(post.title),
-        text: he.decode(post.text)
+        text: he.decode(post.text),
       }));
-      return res.status(200).json(decodedBlogposts)
-    } catch(error) {
-      console.log(error)
-      return res.status(500).json({ error: "error getting drafts"})
+      return res.status(200).json(decodedBlogposts);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: "error getting drafts" });
     }
-  }
-
-]
+  },
+];

@@ -3,14 +3,14 @@ const Blogpost = require("../models/blogpost");
 const Comment = require("../models/comment");
 const jwt = require("jsonwebtoken");
 const Topic = require("../models/topic");
-const he = require('he');
+const he = require("he");
 
-const { body, validationResult } = require('express-validator');
+const { body, validationResult } = require("express-validator");
 
 exports.blogpost_create_post = [
   (req, res, next) => {
-    const bearerHeader = req.headers['authorization'];
-    if (typeof bearerHeader !== 'undefined') {
+    const bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== "undefined") {
       const bearer = bearerHeader.split(" ");
       const bearerToken = bearer[1];
       req.token = bearerToken;
@@ -21,7 +21,7 @@ exports.blogpost_create_post = [
           req.authData = authData;
           next();
         }
-      })
+      });
     } else {
       res.sendStatus(403);
     }
@@ -73,38 +73,41 @@ exports.blogpost_create_post = [
           user: blogpost.user,
           comments: blogpost.comments,
           topic: blogpost.topic,
-        }
+        },
       });
     } catch (error) {
-      console.log(error)
-      return res.status(500).json({ error: "Error creating blogpost"})
+      console.log(error);
+      return res.status(500).json({ error: "Error creating blogpost" });
     }
-  }
+  },
 ];
 
 exports.blogpost_list = async (req, res) => {
   try {
-    let blogposts = await Blogpost.find({published: true}, {title: 1, text: 1, timestamp: 1})
+    let blogposts = await Blogpost.find(
+      { published: true },
+      { title: 1, text: 1, timestamp: 1 },
+    )
       .populate("user topic comments")
-      .sort({timestamp: -1})
+      .sort({ timestamp: -1 })
       .exec();
 
-    const decodedBlogposts = blogposts.map(post => ({
+    const decodedBlogposts = blogposts.map((post) => ({
       ...post._doc,
       title: he.decode(post.title),
-      text: he.decode(post.text)
+      text: he.decode(post.text),
     }));
-    return res.status(200).json(decodedBlogposts)
-  } catch(error) {
-    return res.status(500).json({ error: "error getting blogposts"})
+    return res.status(200).json(decodedBlogposts);
+  } catch (error) {
+    return res.status(500).json({ error: "error getting blogposts" });
   }
 };
 
 exports.blogpost_detail = async (req, res, next) => {
   try {
     const blogpost = await Blogpost.findById(req.params.id)
-    .populate("user topic comments")
-    .exec();
+      .populate("user topic comments")
+      .exec();
 
     if (blogpost === null) {
       const err = new Error("Blogpost not found");
@@ -112,29 +115,28 @@ exports.blogpost_detail = async (req, res, next) => {
       return next(err);
     }
 
-    const decodedComments = blogpost.comments.map(comment => ({
+    const decodedComments = blogpost.comments.map((comment) => ({
       ...comment._doc,
-      text: he.decode(comment.text)
+      text: he.decode(comment.text),
     }));
 
     const decodedBlogpost = {
       ...blogpost._doc,
       title: he.decode(blogpost.title),
       text: he.decode(blogpost.text),
-      comments: decodedComments
+      comments: decodedComments,
     };
 
-
     return res.status(200).json(decodedBlogpost);
-  } catch(error) {
-    return res.status(500).json({ error: "error getting blogpost"});
+  } catch (error) {
+    return res.status(500).json({ error: "error getting blogpost" });
   }
-}
+};
 
 exports.blogpost_update = [
   (req, res, next) => {
-    const bearerHeader = req.headers['authorization'];
-    if (typeof bearerHeader !== 'undefined') {
+    const bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== "undefined") {
       const bearer = bearerHeader.split(" ");
       const bearerToken = bearer[1];
       req.token = bearerToken;
@@ -145,7 +147,7 @@ exports.blogpost_update = [
           req.authData = authData;
           next();
         }
-      })
+      });
     } else {
       res.sendStatus(403);
     }
@@ -165,7 +167,9 @@ exports.blogpost_update = [
         return res.status(404).json({ error: "blogpost not found" });
       }
       if (blogpost.user.toString() !== req.authData.user._id) {
-        return res.status(403).json({ message: "Unauthorized: you're not the author of this post" });
+        return res.status(403).json({
+          message: "Unauthorized: you're not the author of this post",
+        });
       }
 
       const updatedData = {};
@@ -178,22 +182,26 @@ exports.blogpost_update = [
       if (req.body.topic) {
         updatedData.topic = req.body.topic;
       }
-      if (typeof req.body.published !== 'undefined') {
+      if (typeof req.body.published !== "undefined") {
         updatedData.published = req.body.published;
       }
 
-      const updatedBlogpost = await Blogpost.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+      const updatedBlogpost = await Blogpost.findByIdAndUpdate(
+        req.params.id,
+        updatedData,
+        { new: true },
+      );
       return res.status(200).json(updatedBlogpost);
     } catch (error) {
       return res.status(500).json({ error: "error updating blogpost" });
     }
-  }
-]
+  },
+];
 
 exports.blogpost_delete = [
   (req, res, next) => {
-    const bearerHeader = req.headers['authorization'];
-    if (typeof bearerHeader !== 'undefined') {
+    const bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== "undefined") {
       const bearer = bearerHeader.split(" ");
       const bearerToken = bearer[1];
       req.token = bearerToken;
@@ -204,7 +212,7 @@ exports.blogpost_delete = [
           req.authData = authData;
           next();
         }
-      })
+      });
     } else {
       res.sendStatus(403);
     }
@@ -214,29 +222,42 @@ exports.blogpost_delete = [
     try {
       const blogpost = await Blogpost.findById(req.params.id).exec();
       if (!blogpost) {
-        return res.status(404).json({ message: `blogpost ${req.params.id} not found, ` });
+        return res
+          .status(404)
+          .json({ message: `blogpost ${req.params.id} not found, ` });
       }
       //check if owner of post
-      if ( blogpost.user.toString() !== req.authData.user._id) {
-        return res.status(403).json({ message: "Unauthroized: youre not the author of this post", comments: commentsDeleted});
+      if (blogpost.user.toString() !== req.authData.user._id) {
+        return res.status(403).json({
+          message: "Unauthroized: youre not the author of this post",
+          comments: commentsDeleted,
+        });
       }
 
       //user can delete post
-      const commentsDeleted = await Comment.deleteMany({blogpostid: req.params.id});
-      const blogpostDeleted = await Blogpost.findByIdAndRemove(req.params.id).exec();
+      const commentsDeleted = await Comment.deleteMany({
+        blogpostid: req.params.id,
+      });
+      const blogpostDeleted = await Blogpost.findByIdAndRemove(
+        req.params.id,
+      ).exec();
 
-      return res.status(200).json({ message: `post ${req.params.id} deleted successfully` });
+      return res
+        .status(200)
+        .json({ message: `post ${req.params.id} deleted successfully` });
     } catch (error) {
       console.log(error, req.user);
-      return res.status(500).json({ error: `error deleting blogpost id: ${req.params.id}` });
+      return res
+        .status(500)
+        .json({ error: `error deleting blogpost id: ${req.params.id}` });
     }
-  }
+  },
 ];
 
 exports.blogpost_publish = [
   (req, res, next) => {
-    const bearerHeader = req.headers['authorization'];
-    if (typeof bearerHeader !== 'undefined') {
+    const bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== "undefined") {
       const bearer = bearerHeader.split(" ");
       const bearerToken = bearer[1];
       req.token = bearerToken;
@@ -247,7 +268,7 @@ exports.blogpost_publish = [
           req.authData = authData;
           next();
         }
-      })
+      });
     } else {
       res.sendStatus(403);
     }
@@ -258,12 +279,12 @@ exports.blogpost_publish = [
       if (blogpost) {
         blogpost.published = !blogpost.published;
         await blogpost.save();
-        return res.status(200).json({ message: "Blog published successfully"});
+        return res.status(200).json({ message: "Blog published successfully" });
       } else {
-        return res.status(404).json({ message: "Blog post not found"});
+        return res.status(404).json({ message: "Blog post not found" });
       }
-    } catch(error) {
+    } catch (error) {
       next(error);
     }
-  }
+  },
 ];
